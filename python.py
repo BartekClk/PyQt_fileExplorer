@@ -12,10 +12,8 @@ class File_dialog(QMainWindow):
 
         left_arrow = self.ui.left_arrow
         left_arrow.setStyleSheet("background-color: ; border: none;")
-        left_arrow.setIcon(QIcon("left-arrow.png"))
-
-
-        print(left_arrow)
+        left_arrow.setIcon(QIcon("./left-arrow.png"))
+        left_arrow.setIconSize(left_arrow.size())
 
         # self.ui.open.clicked.connect(self.showFile)
 
