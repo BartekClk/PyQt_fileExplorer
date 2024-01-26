@@ -4,6 +4,7 @@ from PyQt6 import uic
 from PyQt6.QtCore import Qt
 import sys
 import os
+import math
 
 class File_dialog(QMainWindow):
     def __init__(self):
@@ -21,6 +22,10 @@ class File_dialog(QMainWindow):
         self.actual_image = 0
         self.status_bar = self.ui.statusbar
         self.status_bar.showMessage("Otwórz zdjęcie")
+        self.pixmap = QPixmap()
+        self.pixmap_ratio = 0
+        self.label_avg = 0
+        self.resized = False
 
         self.openFile.triggered.connect(lambda: self.open_file())
 
@@ -54,15 +59,23 @@ class File_dialog(QMainWindow):
             self.updateStatusBar()
 
     def load_image(self, file_path):
-        pixmap = QPixmap(file_path)
+        pixmap = self.pixmap
+        pixmap.load(file_path)
         pixmap_ratio = pixmap.width()/pixmap.height()
         scale_factor = 0.8
+
+        self.pixmap = pixmap
+        self.pixmap_ratio = pixmap_ratio
+
+        self.label_avg = (self.label.width()+self.label.height())/2
+
         if pixmap_ratio == 1:
             self.label.setPixmap(pixmap.scaled(int(self.label.width()*scale_factor), int(self.label.height()*scale_factor), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         elif pixmap_ratio > 1:
             self.label.setPixmap(pixmap.scaledToWidth(int(self.label.width()*scale_factor), Qt.TransformationMode.SmoothTransformation))
         else:
             self.label.setPixmap(pixmap.scaledToHeight(int(self.label.height()*scale_factor), Qt.TransformationMode.SmoothTransformation))
+
 
     def scrollRight(self):
         if self.actual_image == len(self.images_path)-1:
@@ -71,6 +84,26 @@ class File_dialog(QMainWindow):
             self.actual_image += 1
         self.load_image(self.images_path[self.actual_image])
         self.updateStatusBar()
+    
+    def resizeEvent(self, event):
+        scale_factor = 0.8
+        if abs(self.label_avg - (self.label.width()+self.label.height())/2) > 20 and self.resized == False:
+            self.resized = True
+            print("resize "+str((self.label.width()+self.label.height())/2))
+            self.label_avg = (self.label.width()+self.label.height())/2
+            if self.images_path:
+                self.pixmap.load(self.images_path[self.actual_image])
+            self.resized = False
+
+        if self.images_path:
+                
+            if self.pixmap_ratio == 1:
+                self.label.setPixmap(self.pixmap.scaled(int(self.label.width()*scale_factor), int(self.label.height()*scale_factor), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            elif self.pixmap_ratio > 1:
+                self.label.setPixmap(self.pixmap.scaledToWidth(int(self.label.width()*scale_factor)))
+            else:
+                self.label.setPixmap(self.pixmap.scaledToHeight(int(self.label.height()*scale_factor)))
+
 
     def scrollLeft(self):
         if self.actual_image == 0:
