@@ -56,12 +56,13 @@ class File_dialog(QMainWindow):
     def load_image(self, file_path):
         pixmap = QPixmap(file_path)
         pixmap_ratio = pixmap.width()/pixmap.height()
+        scale_factor = 0.8
         if pixmap_ratio == 1:
-            self.label.setPixmap(pixmap.scaled(self.label.width(), self.label.height(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            self.label.setPixmap(pixmap.scaled(int(self.label.width()*scale_factor), int(self.label.height()*scale_factor), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         elif pixmap_ratio > 1:
-            self.label.setPixmap(pixmap.scaledToWidth(self.label.width(), Qt.TransformationMode.SmoothTransformation))
+            self.label.setPixmap(pixmap.scaledToWidth(int(self.label.width()*scale_factor), Qt.TransformationMode.SmoothTransformation))
         else:
-            self.label.setPixmap(pixmap.scaledToHeight(self.label.height(), Qt.TransformationMode.SmoothTransformation))
+            self.label.setPixmap(pixmap.scaledToHeight(int(self.label.height()*scale_factor), Qt.TransformationMode.SmoothTransformation))
 
     def scrollRight(self):
         if self.actual_image == len(self.images_path)-1:
